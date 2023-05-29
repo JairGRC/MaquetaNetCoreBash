@@ -128,7 +128,7 @@ namespace CreandoMaqueta
                     "}",
                 "}"
             };
-            basePrincipal.AddRange(FileBat(claseBaseRepo, nameBaseRepo, rutaBaseRepo,true));
+            basePrincipal.AddRange(FileBat(claseBaseRepo, nameBaseRepo, rutaBaseRepo, true));
             nameBaseRepo = "ConnectionFactory.cs";
             string[] ConnectionF = {
                 string.Format("using {0}Microservice.Repository;", proyect),
@@ -247,7 +247,7 @@ namespace CreandoMaqueta
                         "{",
                             "if (_configuration is not null !and! string.IsNullOrEmpty(_connectionString))",
                             "{",
-                                "_connectionString = _configuration[\"ConnectionStrings: cnBD\"];",
+                                "_connectionString = _configuration[\"ConnectionStrings:cnBD\"];",
                             "}",
                             "return _connectionString;",
                         "}",
@@ -356,7 +356,7 @@ namespace CreandoMaqueta
                   "}"
             };
 
-            basePrincipal.AddRange(FileBat(IConecction, nameBaseRepo, rutaBaseRepo,true));
+            basePrincipal.AddRange(FileBat(IConecction, nameBaseRepo, rutaBaseRepo, true));
             nameBaseRepo = "IGenericRepository.cs";
             string[] IGenericRepository = {
                  string.Format("namespace {0}Microservice.Repository", proyect),
@@ -373,11 +373,91 @@ namespace CreandoMaqueta
             basePrincipal.AddRange(FileBat(IGenericRepository, nameBaseRepo, rutaBaseRepo));
             basePrincipal.Add(fileDelete);
             basePrincipal.Add(retorno);
-  
-
-            
 
 
+            rutaBaseRepo  = string.Format("{0}Microservice.Api", proyect);
+            nameBaseRepo = "Startup.cs";
+            string[] Startup = {
+            "using Microsoft.OpenApi.Models;",
+            "using System.Data.Common;",
+            "using Util;",
+            string.Format("namespace {0}Microservice.Api", proyect),
+            "{",
+                "public class Startup",
+                "{",
+                    "public Startup(IConfiguration configuration)",
+                    "{",
+                        "Configuration = configuration;",
+                    "}",
+                    "public IConfiguration Configuration { get; }",
+                    "public void ConfigureServices(IServiceCollection services)",
+                    "{",
+                        "DbProviderFactories.RegisterFactory(\"System.Data.SqlClient\", System.Data.SqlClient.SqlClientFactory.Instance);",
+
+                        "//Class to map the key values from config json",
+                        "TrackerConfig._configuration = Configuration;",
+                        "services.AddCors(o =!mayor! o.AddPolicy(\"MyPolicy\", builder =!mayor!",
+                        "{",
+                            "builder.AllowAnyOrigin()",
+                                   ".AllowAnyMethod()",
+                                   ".AllowAnyHeader();",
+                        "}));",
+                        "services.AddControllers();",
+                        "services.AddSwaggerGen(c =!mayor!",
+                        "{",
+                            string.Format("c.SwaggerDoc(\"v1\", new OpenApiInfo {1} Title = \"{0} Microservice.Api\", Version = \"v1\" {2});",proyect,"{","}"),
+                        "});",
+                    "}",
+                    "public void Configure(IApplicationBuilder app, IWebHostEnvironment env)",
+                    "{",
+                        "app.UseDeveloperExceptionPage();",
+                        "app.UseSwagger();",
+                        "app.UseSwaggerUI(c =!mayor!",
+                        "{",
+                             string.Format("c.SwaggerEndpoint(\"/swagger/v1/swagger.json\", \"{0}Microservice.Api v1\");",proyect),
+                             string.Format("//c.SwaggerEndpoint(\"{0}/swagger/v1/swagger.json\", \"{0}Microservice.Api v1\");",proyect),
+                        "});",
+                        "app.UseCors(\"MyPolicy\");",
+                        "app.UseRouting();",
+                        "app.UseAuthorization();",
+                        "app.UseEndpoints(endpoints =!mayor!",
+                        "{",
+                            "endpoints.MapControllers();",
+                        "});",
+                        "app.Run(async (context) =!mayor!",
+                        "{",
+                            string.Format("await context.Response.WriteAsync(\"Microservice \" + \"{0} is running .... \");",proyect),
+                        "});",
+                    "}",
+                "}",
+            "}"
+            };
+            basePrincipal.AddRange(FileBat(Startup, nameBaseRepo, rutaBaseRepo,true));
+            basePrincipal.Add("del Program.cs");
+            nameBaseRepo = "Program.cs";
+            string[] program = {
+                string.Format("using  {0}Microservice.Api;", proyect),
+
+                "var builder = WebApplication.CreateBuilder(args);",
+
+                "var startUp = new Startup(builder.Configuration);",
+                "startUp.ConfigureServices(builder.Services);",
+
+                "// Add services to the container.",
+
+                "var app = builder.Build();",
+
+                "startUp.Configure(app,app.Environment);",
+
+                "app.Run();"
+            };
+            basePrincipal.AddRange(FileBat(program, nameBaseRepo, rutaBaseRepo));
+
+           
+            basePrincipal.Add(retorno);
+            basePrincipal.Add(string.Format("cd {0}Microservice.Domain", proyect));
+            basePrincipal.Add(fileDelete);
+            basePrincipal.Add(retorno);
 
             File.WriteAllLines(ruta, basePrincipal, Encoding.UTF8);
         }
