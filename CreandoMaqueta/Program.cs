@@ -169,6 +169,7 @@ namespace CreandoMaqueta
                     "public class CustomException : ApplicationException",
                     "{",
                         "public virtual string CustomMessage { get; }",
+                        "public virtual List<EResponse> EResponse { get; }",
                     "}",
                 "}"
             };
@@ -344,7 +345,7 @@ namespace CreandoMaqueta
                     "public string cDescripcion { get; set; }",
                     "//public T cValores { get; set; }",
                     "public string? Info { get; set; }",
-                    "//public long nIdReferencia { get; set; }",
+                    "public long nIdReferencia { get; set; }",
                     "}",
 
                     "public abstract class ItemResponse!menor!T!mayor! : BaseResponse",
