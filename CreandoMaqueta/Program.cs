@@ -169,7 +169,7 @@ namespace CreandoMaqueta
                     "public class CustomException : ApplicationException",
                     "{",
                         "public virtual string CustomMessage { get; }",
-                        "public virtual List<EResponse> EResponse { get; }",
+                        "public virtual List!menor!EResponse!mayor! EResponse { get; }",
                     "}",
                 "}"
             };
