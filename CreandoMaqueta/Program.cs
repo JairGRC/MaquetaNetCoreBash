@@ -56,7 +56,7 @@ namespace CreandoMaqueta
                 "",
                 string.Format(" dotnet new webapi --name {0}Microservice.Api -f net8.0",proyect),
                 string.Format(" dotnet sln .\\{0}.sln add .\\{0}Microservice.Api	-s \"03. Layer Api\"",proyect),
-                string.Format(" dotnet add .\\{0}Microservice.Api.csproj package Microsoft.Data.SqlClient",proyect),
+               
                 "",
                 string.Format(" dotnet add .\\Util\\Util.csproj package System.Composition",proyect),
                 string.Format(" dotnet add .\\Util\\Util.csproj package Microsoft.Extensions.Configuration",proyect),
@@ -91,6 +91,7 @@ namespace CreandoMaqueta
                 "",
                 string.Format(" dotnet add .\\{0}Microservice.Api\\{0}Microservice.Api.csproj package Microsoft.VisualStudio.Web.CodeGeneration.Design",proyect),
                 string.Format(" dotnet add .\\{0}Microservice.Api\\{0}Microservice.Api.csproj package Swashbuckle.AspNetCore",proyect),
+                string.Format(" dotnet add .\\{0}Microservice.Api\\{0}Microservice.Api.csproj package Microsoft.Data.SqlClient",proyect),
                 "@echo off",
                 "SETLOCAL ENABLEDELAYEDEXPANSION",
                 ":: the two blank lines are required!",
@@ -100,7 +101,8 @@ namespace CreandoMaqueta
                 "set NL=^^^%NLM%%NLM%^%NLM%%NLM%",
                 "set \"and=^&^&\"",
                 "set \"menor=^<\"",
-                "set \"mayor=^>\""
+                "set \"mayor=^>\"",
+                "set \"exc=^!\""
             };
 
 
@@ -427,33 +429,30 @@ namespace CreandoMaqueta
                     "public void ConfigureServices(IServiceCollection services)",
                     "{",
                         //"DbProviderFactories.RegisterFactory(\"System.Data.SqlClient\", System.Data.SqlClient.SqlClientFactory.Instance);",
-                        "services.AddSingleton<IConnectionFactory>(provider =>\r\n                    new ConnectionFactory(Configuration.GetConnectionString(\"cnBD\")));",
+                        "services.AddSingleton!menor!IConnectionFactory!mayor!(provider =!mayor!new ConnectionFactory(Configuration.GetConnectionString(\"cnBD\")));",
                         " var executableLocation = Assembly.GetEntryAssembly().Location;",
                         "var pathAssembly = Path.GetDirectoryName(executableLocation);",
-                        string.Format("   var assemblies = Directory\r\n                " +
-                        ".GetFiles(pathAssembly, \"{0}*.dll\", SearchOption.TopDirectoryOnly)\r\n                .Select(Assembly.LoadFrom)\r\n                .ToList();",proyect),
+                        string.Format("var assemblies = Directory" +
+                        ".GetFiles(pathAssembly, \"{0}*.dll\", SearchOption.TopDirectoryOnly).Select(Assembly.LoadFrom).ToList();",proyect),
 
                          "foreach (var assembly in assemblies)",
                            " {",
                                 "var repositoryTypes = assembly.GetTypes()",
-                                    ".Where(type => type.Name.Contains(\"Repository\"))",
+                                    ".Where(type =!mayor! type.Name.Contains(\"Repository\"))",
                                     ".ToList();",
-
                                 "foreach (var repositoryType in repositoryTypes)",
                                 "{",
                                     "//Console.WriteLine($\"repository: {repositoryType.FullName}\");",
                                     "var interfaces = repositoryType.GetInterfaces();",
-                                    "var matchingInterface = interfaces.FirstOrDefault(i => i.Name == \"I\" + repositoryType.Name);",
-
-
-                                    "if (matchingInterface != null)",
+                                    "var matchingInterface = interfaces.FirstOrDefault(i =!mayor! i.Name == \"I\" + repositoryType.Name);",
+                                    "if (matchingInterface is not null)",
                                     "{",
                                         "services.AddScoped(matchingInterface, repositoryType);",
                                     "}",
                                " }",
 
                                 "var serviceTypes = assembly.GetTypes()",
-                                    ".Where(type => type.Name.EndsWith(\"Service\"));",
+                                    ".Where(type =!mayor! type.Name.EndsWith(\"Service\"));",
 
                                 "foreach (var serviceType in serviceTypes)",
                                 "{",
@@ -462,7 +461,7 @@ namespace CreandoMaqueta
 
                                 // Registro para Domains
                                 "var domainTypes = assembly.GetTypes()",
-                                    ".Where(type => type.Name.EndsWith(\"Domain\"));",
+                                    ".Where(type =!mayor! type.Name.EndsWith(\"Domain\"));",
 
                                 "foreach (var domainType in domainTypes)",
                                 "{",
@@ -538,6 +537,8 @@ namespace CreandoMaqueta
             basePrincipal.Add(retorno);
 
             File.WriteAllLines(ruta, basePrincipal, Encoding.UTF8);
+
+            
         }
         public static List<string> FileBat(string[] clase, string nameArchivo, string ruta,bool flag =false)
         {
